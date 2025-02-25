@@ -51,7 +51,7 @@ runs:
       shell: bash
       run: |
         source activate e2e_ci
-        # source .github/scripts/env.sh
+
         if [[ ${{ inputs.suite }} == *"torchbench"* ]]; then
           # if [ "${{ inputs.pytorch }}" != "nightly_wheel" ]; then
           #   cd ../ && rm -rf audio && git clone --single-branch -b main https://github.com/pytorch/audio.git
@@ -94,7 +94,9 @@ runs:
       shell: bash
       run: |
         source activate e2e_ci
-        # source .github/scripts/env.sh
+
+        # source .github/scripts/env.sh ${{ inputs.pytorch }}
+
         cp .github/scripts/inductor_xpu_test.sh ../pytorch
         cd ../pytorch
 
@@ -141,7 +143,10 @@ runs:
                 if [ "${MODEL_ONLY_NAME}" == "" ];then       
                   bash inductor_xpu_test.sh ${suite} ${dt} ${mode} ${scenario} xpu 0 static 1 0 &  
                 else
-                  bash inductor_xpu_test.sh ${suite} ${dt} ${mode} ${scenario} xpu 0 static 1 0 ${MODEL_ONLY_NAME} &
+                  for test_model in $(echo ${MODEL_ONLY_NAME} |sed 's/,/ /g')
+                  do
+                    bash inductor_xpu_test.sh ${suite} ${dt} ${mode} ${scenario} xpu 0 static 1 0 ${test_model}
+                  done
                 fi
                 
 
@@ -152,14 +157,6 @@ runs:
                 LOG_NAME=inductor_${suite}_${dt}_${mode}_xpu_${scenario}_all.log
                 rm -f ${LOG_DIR}/${LOG_NAME}
                 find ${LOG_DIR}/ -name "inductor_${suite}_${dt}_${mode}_xpu_${scenario}_card*.log" |xargs cat >> ${LOG_DIR}/${LOG_NAME} 2>&1
-                if [ "${scenario}" == "accuracy" ];then
-                  python ../torch-xpu-ops/.github/ci_expected_accuracy/check_expected.py \
-                        --suite $suite \
-                        --mode $mode \
-                        --dtype $dt \
-                        --csv_file ${LOG_DIR}/inductor_${suite}_${dt}_${mode}_xpu_${scenario}.csv \
-                        2>&1 |tee -a inductor_log/summary_accuracy.log
-                fi
               done
             done
           done

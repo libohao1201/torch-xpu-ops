@@ -1,9 +1,9 @@
 
-import re
 import requests
 import argparse
 import urllib
 import subprocess
+import sys
 
 
 parser = argparse.ArgumentParser()
@@ -12,8 +12,9 @@ parser.add_argument('--pr-list', '-n', nargs='+',
         # Fallback to CPU for XPU FP64
         "https://github.com/pytorch/pytorch/pull/126516",
         # Modify the tolerance level in TIMM benchmark
-        # "https://github.com/pytorch/pytorch/pull/129735",
-        "https://github.com/mengfei25/pytorch/pull/21",
+        "https://github.com/pytorch/pytorch/pull/143739",
+        # Allow XPU device for validating the arguments to sparse compressed tensor factory functions
+        "https://github.com/pytorch/pytorch/pull/147306",
     ]
 )
 parser.add_argument('--extra-pr-list', '-e', nargs='+',default=[])
@@ -58,7 +59,7 @@ def appyly_pr(pr_info, re_apply_msg):
     pr_file = pr_info["diff_url"].split("/")[-1]
     urllib.request.urlretrieve(pr_info["diff_url"], pr_file)
     # apply diff
-    apply_cmd = "git apply --3way " + pr_file + " && rm -f " + pr_file
+    apply_cmd = "git apply --3way " + pr_file
     apply_info = subprocess.Popen(apply_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     apply_message = apply_info.communicate()[0].decode("utf-8")
     apply_status = apply_info.returncode
@@ -68,7 +69,7 @@ def appyly_pr(pr_info, re_apply_msg):
     else:
         print("{} {}, applied got FAILED".format(pr_info["diff_url"], apply_message))
         print(apply_status, apply_message)
-        exit(1)
+        sys.exit(1)
 
 
 # headers = {'Authorization': 'Bearer ' + args.token} if args.token != None else args.token
@@ -104,5 +105,4 @@ for pr_link in pr_list:
         appyly_pr(pr_info, re_apply_msg)
     else:
         print("{} is {}, no need to apply".format(pr_info["diff_url"], pr_info["state"]))
-        exit(1)
-
+        sys.exit(1)
