@@ -54,7 +54,7 @@ on:
         type: choice
         description: 'Choose the runner for the first few jobs'
         options:
-        - "a21-surrogate4-libo"
+        - "a21-libo"
 
       gha-runner-test:
         # choose from two options
@@ -63,7 +63,7 @@ on:
         options:
         - "mtl"
         - "lnl"
-        - "bmg"
+        - "bmg_arc03"
         - "arc"
 permissions: read-all
 
@@ -123,7 +123,7 @@ jobs:
             fi
 
     Linux-Nightly-Ondemand-E2E-Tests:
-        runs-on: [ mtl_gha_runner ]
+        runs-on: [ "${{ inputs.gha-runner-surrogate }}" ]
         needs: [Preparation]
         # Don't run on forked repos
         if: github.repository_owner == 'libohao1201'
