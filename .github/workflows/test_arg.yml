@@ -106,7 +106,7 @@ jobs:
             cat env_var_config.sh   
 
         - name: Archive config file
-          uses: actions/upload-artifact@v3
+          uses: actions/upload-artifact@v4
           with:
             name: config-env-vars
             path: |
