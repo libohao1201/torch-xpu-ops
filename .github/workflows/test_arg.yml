@@ -123,7 +123,7 @@ jobs:
             fi
 
     Linux-Nightly-Ondemand-E2E-Tests:
-        runs-on: [ "${{ inputs.gha-runner-surrogate }}" ]
+        runs-on: [ "${{ inputs.gha-runner-test }}" ]
         needs: [Preparation]
         # Don't run on forked repos
         if: github.repository_owner == 'libohao1201'
