@@ -30,6 +30,5 @@ oneAPI_version: "" # update lqcd, pointnet-atlas submodules
 # https://github.com/intel-innersource/frameworks.ai.infrastructure.argonne-onesource/commit/e2d9e73836d848ed7292db14935ed895fc9c234f
 
 #####################  BELOW DOES NOT NEED TO CHANGED WEEKLY ######################################
-gha_runner: "Borealis" # Do not change for Borealis
 python_version: "3.10" # Do not change on Borealis since we only test IDP3.9
 WHEEL_DOWNLOAD_PROXY: "--proxy=no" # Do not change for Borealis
