@@ -158,12 +158,14 @@ jobs:
               name: config-env-vars
 
           - name: Update env vars
+            shell: cmd
             run: |
               echo "Update env vars"
               call cat env_var_config.sh
               call ren env_var_config.sh env_var_config.bat
 
           - name: Prepare Conda ENV
+            shell: cmd
             run: |
               cur_path=`pwd`
               echo "current path is: %cur_path%"
