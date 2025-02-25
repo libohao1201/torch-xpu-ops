@@ -159,7 +159,7 @@ jobs:
 
           - name: Update env vars
             run: |
-              type env_var_config.sh
+              cat env_var_config.sh
               ren env_var_config.sh env_var_config.bat
 
           - name: Prepare Conda ENV
