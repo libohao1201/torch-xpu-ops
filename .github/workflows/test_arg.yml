@@ -159,19 +159,20 @@ jobs:
 
           - name: Update env vars
             run: |
-              cat env_var_config.sh
+              type env_var_config.sh
               ren env_var_config.sh env_var_config.bat
 
           - name: Prepare Conda ENV
             run: |
-              echo "current path is: $(pwd)"
+              cur_path=`pwd`
+              echo "current path is: %cur_path%"
               which conda && conda clean -ay
               if [ -d "$(dirname ${CONDA_EXE})/../envs/e2e_ci" ]; then
                 echo "e2e_ci exists, remove it!"
                 conda remove --all -y -n e2e_ci || rm -rf $(dirname ${CONDA_EXE})/../envs/e2e_ci
               fi
               
-              conda create -n e2e_ci python=${{ env.python }} cmake ninja -y
+              conda create -n e2e_ci python=%python% cmake ninja -y
               source activate e2e_ci
               pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/test/xpu
               pip uninstall -y torch
