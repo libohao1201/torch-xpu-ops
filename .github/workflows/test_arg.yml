@@ -91,12 +91,12 @@ jobs:
             fi         
             content=`cat ${{ inputs.Config_File }}` || true
             # Save all the env vars in config file to later use in another CI job
-            /home/libohao/miniforge3/bin/python ./scripts/common/parse_config.py --file $Config_File > env_var_config.sh
+            /home/libohao/miniforge3/bin/python ./.github/scripts/common/parse_config.py --file $Config_File > env_var_config.sh
             bash env_var_config.sh
             
         - name: Update env vars
           run: |
-            bash ./scripts/common/prepare_gha_work_envs.sh
+            bash ./.github/scripts/common/prepare_gha_work_envs.sh
             # write env vars to GITHUB_ENV
             bash env_var_config.sh
 
