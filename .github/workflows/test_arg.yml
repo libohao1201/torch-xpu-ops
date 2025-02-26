@@ -129,10 +129,7 @@ jobs:
         if: github.repository_owner == 'libohao1201'
         timeout-minutes: 3600
         env:
-            pytorch: ${{ github.event_name == 'schedule' && 'main' || %pytorch_branch_commit%}}
-            keep_torch_xpu_ops: ${{ github.event_name == 'schedule' && 'false' || %keep_torch_xpu_ops% }}
             ut: ${{ github.event_name == 'schedule' && 'op_regression,op_regression_dev1,op_extended,op_ut,torch_xpu' || inputs.ut }}
-            python: ${{ github.event_name == 'schedule' && '3.10' || %pythonv_version% }}
         outputs:
             TORCH_BRANCH_ID: ${{ steps.pinned.outputs.TORCH_BRANCH_ID }}
             TORCH_COMMIT_ID: ${{ steps.pinned.outputs.TORCH_COMMIT_ID }}
