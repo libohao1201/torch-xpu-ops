@@ -167,13 +167,13 @@ jobs:
           - name: Prepare Conda ENV
             shell: cmd
             run: |
-              cur_path=`pwd`
-              echo "current path is: %cur_path%"
+              
+              echo "current path is: %cd%"
               call which conda && conda clean -ay
               if exist "%CONDA_EXE%\..\..\envs\e2e_ci" (
                 echo "e2e_ci exists, remove it!"
                 conda remove --all -y -n e2e_ci || rmdir %CONDA_EXE%\..\..\envs\e2e_ci
-              fi
+              )
               
              
               call conda create -n e2e_ci python=%python% cmake ninja -y
