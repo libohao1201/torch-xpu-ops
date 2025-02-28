@@ -79,7 +79,7 @@ jobs:
       abi: 1
       python: ${{ github.event_name == 'schedule' && '3.10' || inputs.python }}
 
-      runner: shwde-mlp-arc02
+      runner: shwde
 
   Linux-Nightly-Ondemand-UT-Tests:
     if: ${{ github.event_name == 'schedule' || inputs.ut != '' }}
@@ -92,14 +92,14 @@ jobs:
       pytorch: ${{ needs.Linux-Nightly-Ondemand-Build.outputs.torch_commit_id }}
       python: ${{ github.event_name == 'schedule' && '3.10' || inputs.python }}
       triton: ${{ github.event_name == 'schedule' && '' || inputs.triton }}
-      runner: shwde-mlp-arc02
+      runner: shwde
 
   Linux-Nightly-Ondemand-E2E-Tests:
     runs-on: [ shwde-mlp-arc02 ]
     name: linux-nightly-ondemand / e2e_test
     # Don't run on forked repos
     if: ${{ github.repository_owner == 'intel' }}
-    needs: Linux-Nightly-Ondemand-Build
+    # needs: Linux-Nightly-Ondemand-Build
 
     timeout-minutes: 3600
     env:
@@ -129,23 +129,27 @@ jobs:
         run: |
           echo "current path is: $(pwd)"
           which conda && conda clean -ay
-          if [ -d "$(dirname ${CONDA_EXE})/../envs/e2e_ci" ]; then
-            echo "e2e_ci exists, remove it!"
-            conda remove --all -y -n e2e_ci || rm -rf $(dirname ${CONDA_EXE})/../envs/e2e_ci
+          if [ -d "$(dirname ${CONDA_EXE})/../envs/ww09_oneapi" ]; then
+            # echo "e2e_ci exists, remove it!"
+            echo "ww09_oneapi exists!"
+            # conda remove --all -y -n e2e_ci || rm -rf $(dirname ${CONDA_EXE})/../envs/e2e_ci
           fi
           
-          conda create -n e2e_ci python=${{ env.python }} cmake ninja -y
-          source activate e2e_ci
-          pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/test/xpu
-          pip uninstall -y torch
-          pip install --no-deps /home/ruijie/onednn_37_ww03/torch-2.6.0.dev20250115+xpu-cp310-cp310-linux_x86_64.whl
-          pip install pandas psutil pyyaml scipy tqdm pytest
+          # conda create -n e2e_ci python=${{ env.python }} cmake ninja -y
+          # source activate e2e_ci
+          conda activate ww09_oneapi
+          # pip install torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/test/xpu
+          # pip uninstall -y torch
+          # pip install --no-deps /home/ruijie/onednn_37_ww03/torch-2.6.0.dev20250115+xpu-cp310-cp310-linux_x86_64.whl
+          # pip install pandas psutil pyyaml scipy tqdm pytest
       - name: Prepare Stock Pytorch
         run: |
           pwd
           cd ../ && rm -rf pytorch
-          source activate e2e_ci
-          git clone https://github.com/pytorch/pytorch pytorch
+          # source activate e2e_ci
+          conda activate ww09_oneapi
+          # git clone https://github.com/pytorch/pytorch pytorch
+          git clone https://github.com/Stonepia/pytorch.git
           cd pytorch && git checkout $(echo ${{ env.pytorch }} |awk '{print $1}') 
           # apply PRs for stock pytorch
           pip install requests
@@ -195,14 +199,16 @@ jobs:
           echo ${GITHUB_ENV}
       - name: Triton Installation
         run: |
-          source activate e2e_ci
+          # source activate e2e_ci
+          conda activate ww09_oneapi
           cd ../pytorch
           TRITON_REPO="https://github.com/intel/intel-xpu-backend-for-triton"
           echo ${TRITON_REPO}@${TRITON_COMMIT_ID}
           echo "Skip triton installation!"
           #### In "Building pytorch: situation - triton installation
           # pip install --force-reinstall "git+${TRITON_REPO}@${TRITON_COMMIT_ID}#subdirectory=python"
-          pip install --force-reinstall "git+${TRITON_REPO}@${TRITON_COMMIT_ID}#subdirectory=python"
+          # pip install --force-reinstall "git+${TRITON_REPO}@${TRITON_COMMIT_ID}#subdirectory=python"
+          echo "Skip triton installation!"
       - name: Download Pytorch wheel
         if: ${{ inputs.pytorch != 'nightly_wheel' }}
         uses: actions/download-artifact@v4
@@ -211,11 +217,12 @@ jobs:
           path: ${{ github.workspace }}
       - name: Install Pytorch XPU
         run: |
-          source activate e2e_ci
-          source .github/scripts/env.sh
+          # source activate e2e_ci
+          conda activate ww09_oneapi
+          # source .github/scripts/env.sh
           cd ../pytorch
-          pip install -r requirements.txt
-          pip install --force-reinstall ${{ github.workspace }}/torch*.whl
+          # pip install -r requirements.txt
+          # pip install --force-reinstall ${{ github.workspace }}/torch*.whl
 
       - name: Show GITHUB_ENV
         run: |
@@ -309,7 +316,8 @@ jobs:
           tar zcf xpu-inductor-${GITHUB_RUN_ID}.tgz -C ${{ github.workspace }}/upload_files/ . # backup logs
           # Print summary
           rm -rf /tmp/tmp-*.txt
-          source activate e2e_ci
+          # source activate e2e_ci
+          conda activate ww09_oneapi
           bash ${{ github.workspace }}/.github/scripts/e2e_summary.sh ${{ github.workspace }}/upload_files >> ${GITHUB_STEP_SUMMARY}
           exit_label=$(awk 'BEGIN{sum=0}{if($2>0){sum++}}END{print sum}' /tmp/tmp-result.txt)
           if [ ${exit_label} -ne 0 ];then
