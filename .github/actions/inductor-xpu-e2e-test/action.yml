@@ -50,7 +50,7 @@ runs:
       if: ${{ inputs.env_prepare }}
       shell: bash
       run: |
-        source activate ww09_oneapi
+        source activate pt27_rc1
 
         if [[ ${{ inputs.suite }} == *"torchbench"* ]]; then
           if [ "${{ inputs.pytorch }}" != "nightly_wheel" ]; then
@@ -95,7 +95,7 @@ runs:
         DisableScratchPages: ${{ inputs.driver == 'rolling' && '1' || '0' }}
       shell: bash
       run: |
-        source activate ww09_oneapi
+        source activate pt27_rc1
 
         # source .github/scripts/env.sh ${{ inputs.pytorch }}
 
@@ -177,7 +177,7 @@ runs:
           cat $var >> inductor_log/summary_accuracy.csv
         done
 
-        source activate ww09_oneapi
+        source activate pt27_rc1
         cd ${{ github.workspace }}
         cp .github/scripts/inductor_summary.py ../pytorch
         cd ../pytorch
