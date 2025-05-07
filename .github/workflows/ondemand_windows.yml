@@ -15,6 +15,11 @@ on:
             pytorch:
                 required: false
                 type: string
+                default: 'main'
+                description: Pytorch branch/commit
+            pytorch_wheel:
+                required: false
+                type: string
                 default: "pip install torch==2.7.0 --index-url https://download.pytorch.org/whl/test/xpu"
                 description: Pytorch installation command
             ut:
@@ -51,16 +56,26 @@ on:
 permissions: read-all
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.sha }}-${{ github.event_name }}-${{ inputs.ut }}-${{ inputs.suite }}-${{ inputs.dt }}-${{ inputs.mode }}-${{ inputs.scenario }}-${{ inputs.model }}
+    group: ${{ github.workflow }}-${{ github.sha }}-${{ github.event_name }}-${{ inputs.pytorch }}-${{ inputs.ut }}-${{ inputs.suite }}-${{ inputs.dt }}-${{ inputs.mode }}-${{ inputs.scenario }}-${{ inputs.model }}
     cancel-in-progress: true
 
 
 jobs:
+    Torch-XPU-Windows-Build:
+        if: ${{ inputs.pytorch != '' }} || ${{ ! cancelled() }}
+        name: windows-build-ondemand
+        uses: ./.github/workflows/_windows_build.yml
+        with:
+            pytorch: ${{ inputs.pytorch }}
+            keep_torch_xpu_ops: 'true'
+            python: '3.10'
+            runner: ${{ inputs.gha-runner-test }}
     Windows-UT-WHL-Tests:
         if: ${{ inputs.ut != '' }}
         uses: ./.github/workflows/_windows_ut.yml
         with:
             pytorch: ${{ inputs.pytorch }}
+            pytorch_wheel: ${{ inputs.pytorch_wheel }}
             keep_torch_xpu_ops: 'true'
             ut: ${{ inputs.ut }}
             python: '3.10'
@@ -72,6 +87,7 @@ jobs:
         timeout-minutes: 3600
         env:
             pytorch: ${{ inputs.pytorch }}
+            pytorch_wheel: ${{ inputs.pytorch_wheel }}
             keep_torch_xpu_ops: 'true'
             suite: ${{ inputs.suite }}
             dt: ${{ inputs.dt }}
@@ -101,6 +117,9 @@ jobs:
             - name: Checkout torch-xpu-ops
               uses: actions/checkout@v4
 
+            - name: Set runner environment variable
+              run: echo "runner=${{ inputs.gha-runner-test }}" >> $GITHUB_ENV
+
             - name: Prepare Conda ENV
               id: installed
               run: |
@@ -111,10 +130,21 @@ jobs:
                         conda remove --all -y -n e2e_ci || rmdir %CONDA_EXE%\..\..\envs\e2e_ci
                     )
                     
+                    if "%runner%" == "windows-2022" (
+                        call conda install -y -c intel oneapi-setvars
+                    )
                     
-                    call conda create -n e2e_ci python=3.10 cmake ninja -y
-                    call conda activate e2e_ci
-                    pip install ${{ inputs.pytorch }}
+
+                   
+                    if "%pytorch_wheel%" NEQ "" (
+                        echo "Using pytorch wheel from %pytorch_wheel%"
+                        pip install %pytorch_wheel%
+                    ) else if "%pytorch%" NEQ "" (
+                        echo "Using pytorch branch/commit from %pytorch%"
+                        pip install git+https://github.com/pytorch/pytorch.git@%pytorch%
+                    ) else (
+                        echo "No pytorch installation method provided."
+                    )
                     
                     for /f "delims=" %i in ('python -c "import torch; print(torch.version.git_version)"') do set pytorch_commit_id=%i
                     echo PyTorch commit id: %pytorch_commit_id%   
@@ -122,7 +152,8 @@ jobs:
                     git clone https://github.com/pytorch/pytorch.git
                     cd pytorch
                     git checkout %pytorch_version% 
-                    git status && git show -s
+                    git status 
+                    git show -s
                     pip install -r requirements.txt
 
 
@@ -131,5 +162,6 @@ jobs:
                     git clone https://github.com/intel/torch-xpu-ops.git
                     cd torch-xpu-ops
                     git checkout %TORCH_XPU_OPS_COMMIT%
-                    git status && git show -s
+                    git status 
+                    git show -s
 
