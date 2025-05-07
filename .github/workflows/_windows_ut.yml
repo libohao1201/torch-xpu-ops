@@ -59,9 +59,9 @@ jobs:
       - name: Prepare conda env
         shell: cmd
         run: |
-          echo "C:\ProgramData\miniforge3\Scripts" >> "$GITHUB_PATH"
-          echo "C:\ProgramData\miniforge3\Library\bin" >> "$GITHUB_PATH"
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          echo "C:\User\Administrator\Miniforge3\Scripts" >> "$GITHUB_PATH"
+          echo "C:\User\Administrator\Miniforge3\Library\bin" >> "$GITHUB_PATH"
+          call "C:\User\Administrator\Miniforge3\Scripts\activate.bat"
           call conda clean -ay
           call conda remove --all -y -n xpu_op_ut
           call conda create -n xpu_op_ut python=3.10 cmake ninja -y
@@ -130,7 +130,7 @@ jobs:
       - name: Torch Config
         shell: cmd
         run: |
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          call "C:\User\Administrator\Miniforge3\Scripts\activate.bat"
           call conda activate xpu_op_ut
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           python -c "import torch; print(torch.__config__.show())"
@@ -148,7 +148,7 @@ jobs:
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
         shell: cmd
         run: |
-          call "C:\ProgramData\miniforge3\Scripts\activate.bat"
+          call "C:\User\Administrator\Miniforge3\Scripts\activate.bat"
           call conda activate xpu_op_ut
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           set PYTORCH_TEST_WITH_SLOW=1
