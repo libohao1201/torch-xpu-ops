@@ -53,7 +53,6 @@ jobs:
             uses: actions/checkout@v4
           - name: Install oneAPI
             if: ${{ inputs.xpu_version != '' }}
-            # shell: cmd
             run: |
               set XPU_VERSION=${{ inputs.xpu_version }}
               call .github\scripts\install_xpu.bat
@@ -63,6 +62,7 @@ jobs:
             run: |
               echo "C:\Users\Administrator\Miniforge3\Scripts" >> "%GITHUB_PATH%"
               echo "C:\Users\Administrator\Miniforge3\Library\bin" >> "%GITHUB_PATH%"
+              echo %GITHUB_PATH%
               call "C:\Users\Administrator\Miniforge3\Scripts\activate.bat"
               call conda clean -ay
               call conda remove --all -y -n windows_ci
@@ -70,7 +70,6 @@ jobs:
               call conda activate windows_ci
           - name: Build Pytorch XPU
             if: ${{ inputs.pytorch != '' }}
-            # shell: cmd
             run: |
               cd ..
               if exist "pytorch" (
@@ -128,7 +127,6 @@ jobs:
               python -m pip install %TORCH_WHL%
               pip install -r .ci\docker\requirements-ci.txt
           - name: Torch Config
-            # shell: cmd
             run: |
               call "C:\Users\Administrator\Miniforge3\Scripts\activate.bat"
               call conda activate windows_ci
