@@ -18,6 +18,11 @@ on:
         type: string
         default: 'false'
         description: Keep torch-xpu-ops pin. `true` means use pined commit
+      torch_xpu_commit:
+        required: false
+        type: string
+        default: 'main'
+        description: Torch-xpu-ops branch/commit
       ut:
         required: true
         type: string
@@ -67,7 +72,7 @@ jobs:
         shell: cmd
         run: |
           cd ..
-          cd pytorch
+          
           
           pip install pyyaml requests
           call conda install -y libuv
@@ -86,9 +91,38 @@ jobs:
           
           call conda list | findstr torch > torch_list.log
           type torch_list.log
-          
+
+          for /f "delims=" %%i in ('python -c "import torch; print(torch.version.git_version)"') do set TORCH_COMMIT_ID=%%i
+          echo TORCH_COMMIT_ID=%TORCH_COMMIT_ID%>>"%GITHUB_OUTPUT%"
+
+          git clone https://github.com/pytorch/pytorch pytorch
+          cd pytorch
+          git checkout %TORCH_COMMIT_ID%
+          git status >> ..\torch_list.log
+          git show -s >> ..\torch_list.log
 
 
+          if ${{ inputs.keep_torch_xpu_ops }} == 'true' (
+            echo "Use pinned torch-xpu-ops!"
+            cd third_party
+            set /P TORCH_XPU_OPS_COMMIT=<xpu.txt
+            
+          ) else (
+            echo "Replace torch-xpu-ops!"
+            cd third_party
+            if exist "torch-xpu-ops" (
+              rmdir /s /q torch-xpu-ops
+            )
+            set TORCH_XPU_OPS_COMMIT=${{ inputs.torch_xpu_commit }}
+           
+          )
+
+          git clone https://github.com/intel/torch-xpu-ops.git
+ 
+          cd torch-xpu-ops          
+          git checkout %TORCH_XPU_OPS_COMMIT%
+
+          cd ..\..\
           pip install -r requirements.txt
           pip install -r .ci\docker\requirements-ci.txt
 
@@ -108,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Torch-XPU-Windows-Log-${{ github.event.pull_request.number || github.sha }}
-          path: 'C:\actions-runner\_work\torch-xpu-ops\pytorch\torch_list.log'
+          path: 'C:\actions-runner\_work\torch-xpu-ops\torch_list.log'
 
       - name: Run XPU OP Extended UT
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
@@ -118,5 +152,5 @@ jobs:
           call conda activate xpu_op_ut
           call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
           set PYTORCH_TEST_WITH_SLOW=1
-          cd ../pytorch/third_party/torch-xpu-ops/test/xpu/extended/
+          cd ..\pytorch\third_party\torch-xpu-ops\test\xpu\extended\
           python run_test_with_skip_mtl.py
