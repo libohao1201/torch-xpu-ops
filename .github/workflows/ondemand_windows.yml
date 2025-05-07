@@ -70,6 +70,7 @@ jobs:
             keep_torch_xpu_ops: 'true'
             python: '3.10'
             runner: ${{ inputs.gha-runner-test }}
+            xpu_version: ''
     Windows-UT-WHL-Tests:
         if: ${{ inputs.ut != '' }}
         uses: ./.github/workflows/_windows_ut.yml
