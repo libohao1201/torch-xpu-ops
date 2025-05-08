@@ -72,14 +72,17 @@ jobs:
         shell: cmd
         run: |
           cd ..
+          for /f "delims=" %%i in ('cd') do set CURRENT_PATH=%%i
+          echo Current Path: %CURRENT_PATH%
+
           
-          
+          call conda activate xpu_op_ut
           pip install pyyaml requests
           call conda install -y libuv
           call conda install -y rust 
           
 
-          call conda activate xpu_op_ut
+          
           cd ../pytorch
 
           if "%inputs.pytorch%" NEQ "" (
