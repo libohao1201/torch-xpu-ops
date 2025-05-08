@@ -9,9 +9,13 @@ on:
     workflow_dispatch:
         inputs:
             gha-runner-test:
-                description: 'GHA runner test'
+                type: choice
+                description: 'Choose the GHA runner for testing'
                 required: true
-                default: 'windows-2022'
+                options: 
+                - 'windows-2022'
+                - 'lnl_138'
+                - 'mtl_165_11'
             pytorch:
                 required: false
                 type: string
