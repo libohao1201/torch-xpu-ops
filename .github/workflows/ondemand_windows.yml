@@ -66,7 +66,7 @@ concurrency:
 
 jobs:
     Torch-XPU-Windows-Build:
-        if: ${{ inputs.pytorch != '' }} || ${{ ! cancelled() }}
+        if: ${{ inputs.pytorch != ''  ||  ! cancelled() }}
         name: windows-build-ondemand
         uses: ./.github/workflows/_windows_build.yml
         with:
