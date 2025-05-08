@@ -57,7 +57,7 @@ jobs:
       - name: Checkout torch-xpu-ops
         uses: actions/checkout@v4
       - name: Prepare conda env
-        # shell: cmd
+        shell: cmd
         run: |
           echo "C:\ProgramData\miniforge3\Scripts" >> "$GITHUB_PATH"
           echo "C:\ProgramData\miniforge3\Library\bin" >> "$GITHUB_PATH"
@@ -69,7 +69,7 @@ jobs:
           
       - name: Install Pytorch XPU
         if: ${{ inputs.pytorch != '' }} || ${{ inputs.pytorch_wheel != ''}} || ${{ ! cancelled() }}
-        # shell: cmd
+        shell: cmd
         run: |
           cd ..
           
@@ -128,7 +128,7 @@ jobs:
 
 
       - name: Torch Config
-        # shell: cmd
+        shell: cmd
         run: |
           call "C:\ProgramData\miniforge3\Scripts\activate.bat"
           call conda activate xpu_op_ut
@@ -146,7 +146,7 @@ jobs:
 
       - name: Run XPU OP Extended UT
         if: contains(inputs.ut, 'op_extended') || github.event_name == 'schedule'
-        # shell: cmd
+        shell: cmd
         run: |
           call "C:\ProgramData\miniforge3\Scripts\activate.bat"
           call conda activate xpu_op_ut
