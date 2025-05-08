@@ -77,8 +77,7 @@ jobs:
           pip install pyyaml requests
           call conda install -y libuv
           call conda install -y rust 
-          git status 
-          git show -s 
+          
 
           call conda activate xpu_op_ut
           cd ../pytorch

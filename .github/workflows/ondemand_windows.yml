@@ -129,7 +129,8 @@ jobs:
               id: installed
               run: |
                     echo "current path is: ${{ github.workspace }}"
-                    call which conda && conda clean -ay
+                    call which conda
+                    conda clean -ay
                     if exist "%CONDA_EXE%\..\..\envs\e2e_ci" (
                         echo "e2e_ci exists, remove it!"
                         conda remove --all -y -n e2e_ci || rmdir %CONDA_EXE%\..\..\envs\e2e_ci
