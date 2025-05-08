@@ -60,10 +60,10 @@ jobs:
           - name: Prepare Stock Pytorch
             shell: cmd
             run: |
-              echo "C:\Users\Administrator\Miniforge3\Scripts" >> "%GITHUB_PATH%"
-              echo "C:\Users\Administrator\Miniforge3\Library\bin" >> "%GITHUB_PATH%"
+              echo "C:\ProgramData\miniforge3\Scripts" >> "%GITHUB_PATH%"
+              echo "C:\ProgramData\miniforge3\Library\bin" >> "%GITHUB_PATH%"
               echo %GITHUB_PATH%
-              call "C:\Users\Administrator\Miniforge3\Scripts\activate.bat"
+              call "C:\ProgramData\miniforge3\Scripts\activate.bat"
               call conda clean -ay
               call conda remove --all -y -n windows_ci
               call conda create -n windows_ci python=3.10 cmake ninja -y
@@ -103,7 +103,7 @@ jobs:
               )
     
     
-              call "C:\Users\Administrator\Miniforge3\Scripts\activate.bat"
+              call "C:\ProgramData\miniforge3\Scripts\activate.bat"
               call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
               call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
               call "C:\Program Files (x86)\Intel\oneAPI\ocloc\latest\env\vars.bat"
@@ -128,7 +128,7 @@ jobs:
               pip install -r .ci\docker\requirements-ci.txt
           - name: Torch Config
             run: |
-              call "C:\Users\Administrator\Miniforge3\Scripts\activate.bat"
+              call "C:\ProgramData\miniforge3\Scripts\activate.bat"
               call conda activate windows_ci
               call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
               python -c "import torch; print(torch.__config__.show())"
