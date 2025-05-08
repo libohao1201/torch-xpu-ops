@@ -72,7 +72,7 @@ jobs:
             if: ${{ inputs.pytorch != '' }}
             run: |
               cd ..
-              if exist "pytorch" 
+              if exist pytorch
               (
                 echo "Removing existing pytorch directory"
                 rmdir /s /q pytorch
